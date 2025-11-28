@@ -4,8 +4,15 @@ import '../providers/database_provider.dart';
 import '../models/season.dart';
 import '../constants/colors.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  Season? _selectedSeasonToDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +24,14 @@ class SettingsScreen extends StatelessWidget {
         builder: (context, provider, child) {
           final pastSeasons = provider.getPastSeasons();
 
+          // Ensure selected value is valid (it might have been deleted)
+          if (_selectedSeasonToDelete != null && !pastSeasons.contains(_selectedSeasonToDelete)) {
+             _selectedSeasonToDelete = null;
+          }
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // Theme Settings (Placeholder)
               // Theme Settings
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -157,6 +168,87 @@ class SettingsScreen extends StatelessWidget {
                   );
                 },
               ),
+              
+              // Delete Old Seasons
+              if (pastSeasons.isNotEmpty) ...[
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    'Eski Sezonları Sil',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<Season>(
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Silinecek Sezon',
+                            prefixIcon: Icon(Icons.delete_outline, color: Colors.red),
+                          ),
+                          value: _selectedSeasonToDelete,
+                          items: pastSeasons.map((season) {
+                            return DropdownMenuItem<Season>(
+                              value: season,
+                              child: Text(season.name),
+                            );
+                          }).toList(),
+                          onChanged: (selectedSeason) {
+                            if (selectedSeason != null) {
+                              setState(() {
+                                _selectedSeasonToDelete = selectedSeason;
+                              });
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Sezonu Sil?'),
+                                  content: Text(
+                                    'DİKKAT: "${selectedSeason.name}" ve içindeki tüm kayıtlar KALICI OLARAK silinecek. Bu işlem geri alınamaz!',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        setState(() {
+                                          _selectedSeasonToDelete = null;
+                                        });
+                                      },
+                                      child: const Text('İptal'),
+                                    ),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                      onPressed: () async {
+                                        await provider.deleteSeason(selectedSeason.id);
+                                        if (context.mounted) {
+                                          Navigator.pop(context); // Close dialog
+                                          
+                                          // Reset selection
+                                          setState(() {
+                                            _selectedSeasonToDelete = null;
+                                          });
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Sezon silindi.')),
+                                          );
+                                        }
+                                      },
+                                      child: const Text('SİL', style: TextStyle(color: Colors.white)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           );
         },

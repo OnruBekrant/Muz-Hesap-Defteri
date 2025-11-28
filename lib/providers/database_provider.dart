@@ -179,6 +179,30 @@ class DatabaseProvider extends ChangeNotifier {
     
     notifyListeners();
   }
+
+  Future<void> deleteSeason(String seasonId) async {
+    if (_seasonBox == null || _transactionBox == null) return;
+
+    // 1. Delete all transactions for this season
+    final transactionsToDelete = _transactionBox!.values
+        .where((t) => t.seasonId == seasonId)
+        .toList();
+    
+    for (var transaction in transactionsToDelete) {
+      await transaction.delete();
+    }
+
+    // 2. Delete the season itself
+    final seasonToDelete = _seasonBox!.values.firstWhere((s) => s.id == seasonId);
+    await seasonToDelete.delete();
+
+    // 3. If we deleted the current season (history view), reset to active season
+    if (_currentSeason?.id == seasonId) {
+      resetToHome();
+    }
+    
+    notifyListeners();
+  }
   
   // Helper to get all past seasons for history view
   List<Season> getPastSeasons() {
