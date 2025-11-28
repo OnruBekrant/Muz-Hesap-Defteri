@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/season.dart';
 import '../models/transaction.dart';
+import '../services/notification_service.dart';
 
 class DatabaseProvider extends ChangeNotifier {
   Season? _currentSeason;
@@ -22,11 +23,20 @@ class DatabaseProvider extends ChangeNotifier {
 
   Box<Season>? _seasonBox;
   Box<Transaction>? _transactionBox;
+  Box? _settingsBox;
+
+  bool _notificationsEnabled = true;
+  bool get notificationsEnabled => _notificationsEnabled;
 
   Future<void> init() async {
     // Open Hive boxes
     _seasonBox = await Hive.openBox<Season>('seasons');
     _transactionBox = await Hive.openBox<Transaction>('transactions');
+    _settingsBox = await Hive.openBox('settings');
+
+    _notificationsEnabled = _settingsBox!.get('notificationsEnabled', defaultValue: true);
+
+    await NotificationService().init();
 
     // Find active season
     try {
@@ -90,6 +100,7 @@ class DatabaseProvider extends ChangeNotifier {
     int? unitCount,
     double? unitPrice, // Can be null if calculated
     String? relatedTransactionId,
+    DateTime? dueDate,
   }) async {
     if (_activeSeason == null) return;
 
@@ -110,6 +121,7 @@ class DatabaseProvider extends ChangeNotifier {
       unitCount: unitCount,
       unitPrice: finalUnitPrice,
       relatedTransactionId: relatedTransactionId,
+      dueDate: dueDate,
     );
 
     await _transactionBox!.add(newTransaction);
@@ -160,5 +172,16 @@ class DatabaseProvider extends ChangeNotifier {
   List<Season> getPastSeasons() {
     if (_seasonBox == null) return [];
     return _seasonBox!.values.where((s) => !s.isActive).toList();
+  }
+
+  Future<void> setNotificationsEnabled(bool value) async {
+    _notificationsEnabled = value;
+    await _settingsBox!.put('notificationsEnabled', value);
+    
+    if (!value) {
+      await NotificationService().cancelAll();
+    }
+    
+    notifyListeners();
   }
 }

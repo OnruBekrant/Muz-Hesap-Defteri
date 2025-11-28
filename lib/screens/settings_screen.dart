@@ -54,6 +54,25 @@ class SettingsScreen extends StatelessWidget {
               ),
               const Divider(),
 
+              // Notification Settings
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Bildirim Ayarları',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.koyuYesil),
+                ),
+              ),
+              SwitchListTile(
+                title: const Text('Ödeme Hatırlatıcıları'),
+                subtitle: const Text('Vadesi gelen ödemeler için bildirim al.'),
+                value: provider.notificationsEnabled,
+                onChanged: (bool value) {
+                  provider.setNotificationsEnabled(value);
+                },
+                secondary: const Icon(Icons.notifications_active),
+              ),
+              const Divider(),
+
               // History Section
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),

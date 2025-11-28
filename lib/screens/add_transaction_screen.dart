@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../providers/database_provider.dart';
 import '../models/transaction.dart';
 import '../constants/colors.dart';
+import '../services/notification_service.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -16,6 +17,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   TransactionType _selectedType = TransactionType.alacak;
   DateTime _selectedDate = DateTime.now();
+  DateTime? _dueDate;
   
   // Controllers
   final _amountController = TextEditingController();
@@ -34,7 +36,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     super.dispose();
   }
 
-  void _saveTransaction() {
+  @override
+  void initState() {
+    super.initState();
+    // Default due date is 30 days from now
+    _dueDate = DateTime.now().add(const Duration(days: 30));
+  }
+
+  void _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
 
     final amount = double.parse(_amountController.text.replaceAll(',', '.'));
@@ -58,7 +67,28 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       weight: weight,
       unitCount: unitCount,
       relatedTransactionId: _relatedTransactionId,
+      dueDate: _selectedType == TransactionType.alacak ? _dueDate : null,
     );
+
+    // Schedule Notification if enabled and due date is set
+    if (_selectedType == TransactionType.alacak && _dueDate != null) {
+      final provider = Provider.of<DatabaseProvider>(context, listen: false);
+      if (provider.notificationsEnabled) {
+        try {
+          int notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+          
+          await NotificationService().scheduleNotification(
+            notificationId,
+            'Ödeme Günü Geldi!',
+            '${DateFormat('dd MMMM yyyy', 'tr_TR').format(_selectedDate)} tarihinde verdiğiniz $amount TL\'lik muzun ödeme vadesi bugün.',
+            _dueDate!,
+          );
+        } catch (e) {
+          debugPrint('Notification scheduling failed: $e');
+          // Continue execution even if notification fails
+        }
+      }
+    }
 
     Navigator.pop(context);
   }
@@ -85,6 +115,37 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
+        // Update due date if it hasn't been manually changed? 
+        // Or just keep the default +30 logic relative to the new date?
+        // Let's reset it to +30 days from the new date for convenience
+        _dueDate = picked.add(const Duration(days: 30));
+      });
+    }
+  }
+
+  Future<void> _pickDueDate() async {
+    if (_dueDate == null) return;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dueDate!,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.yaprakYesili,
+              onPrimary: Colors.white,
+              onSurface: AppColors.metinRengi,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _dueDate = picked;
       });
     }
   }
@@ -286,6 +347,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 }
                 return const SizedBox.shrink();
               },
+            ),
+          ),
+          // Due Date Picker
+          const SizedBox(height: 16),
+          InkWell(
+            onTap: _pickDueDate,
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Tahmini Ödeme Tarihi (Vade)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.event_available),
+              ),
+              child: Text(
+                _dueDate != null 
+                  ? DateFormat('dd MMMM yyyy', 'tr_TR').format(_dueDate!)
+                  : 'Seçilmedi',
+                style: const TextStyle(fontSize: 18),
+              ),
             ),
           ),
       ],

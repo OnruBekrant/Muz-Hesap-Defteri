@@ -45,6 +45,9 @@ class Transaction extends HiveObject {
   @HiveField(9)
   final String? relatedTransactionId;
 
+  @HiveField(10)
+  final DateTime? dueDate;
+
   Transaction({
     required this.id,
     required this.seasonId,
@@ -56,5 +59,6 @@ class Transaction extends HiveObject {
     this.unitCount,
     this.unitPrice,
     this.relatedTransactionId,
+    this.dueDate,
   });
 }
