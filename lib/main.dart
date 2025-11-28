@@ -6,9 +6,14 @@ import 'providers/database_provider.dart';
 import 'screens/home_screen.dart';
 import 'constants/colors.dart';
 
+import 'models/season.dart';
+import 'models/transaction.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  Hive.registerAdapter(SeasonAdapter());
+  Hive.registerAdapter(TransactionAdapter());
 
   runApp(const MuzHesapDefteriApp());
 }
