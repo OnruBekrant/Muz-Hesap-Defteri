@@ -206,6 +206,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "flutter_localizations",
+      "rootUri": "file:///home/onur/flutter/packages/flutter_localizations",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///home/onur/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -285,9 +291,9 @@
     },
     {
       "name": "intl",
-      "rootUri": "file:///home/onur/.pub-cache/hosted/pub.dev/intl-0.18.1",
+      "rootUri": "file:///home/onur/.pub-cache/hosted/pub.dev/intl-0.20.2",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.3"
     },
     {
       "name": "io",

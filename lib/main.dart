@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,14 +7,17 @@ import 'providers/database_provider.dart';
 import 'screens/home_screen.dart';
 import 'constants/colors.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
 import 'models/season.dart';
 import 'models/transaction.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  await initializeDateFormatting('tr_TR', null);
   Hive.registerAdapter(SeasonAdapter());
   Hive.registerAdapter(TransactionAdapter());
+  Hive.registerAdapter(TransactionTypeAdapter());
 
   runApp(const MuzHesapDefteriApp());
 }
@@ -30,6 +34,16 @@ class MuzHesapDefteriApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Muz Hesap Defteri',
         debugShowCheckedModeBanner: false,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('tr', 'TR'),
+        ],
+        locale: const Locale('tr', 'TR'),
+        themeMode: Provider.of<DatabaseProvider>(context).themeMode,
         theme: ThemeData(
           primaryColor: AppColors.muzSarisi,
           scaffoldBackgroundColor: AppColors.arkaPlan,

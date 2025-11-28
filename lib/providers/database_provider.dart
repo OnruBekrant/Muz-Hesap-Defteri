@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -15,6 +16,9 @@ class DatabaseProvider extends ChangeNotifier {
   List<Transaction> get transactionList => _transactionList;
 
   bool get isHistoryMode => _currentSeason != null && _activeSeason != null && _currentSeason!.id != _activeSeason!.id;
+
+  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode get themeMode => _themeMode;
 
   Box<Season>? _seasonBox;
   Box<Transaction>? _transactionBox;
@@ -63,6 +67,11 @@ class DatabaseProvider extends ChangeNotifier {
   void switchToHistory(Season season) {
     _currentSeason = season;
     _loadTransactions();
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
   }
 
   void resetToHome() {

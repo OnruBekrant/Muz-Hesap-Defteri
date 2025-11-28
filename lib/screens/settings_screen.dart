@@ -21,11 +21,13 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               // Theme Settings (Placeholder)
-              const ListTile(
-                leading: Icon(Icons.brightness_6),
-                title: Text('Tema'),
-                subtitle: Text('Sistem Teması (Varsayılan)'),
-                trailing: Icon(Icons.chevron_right),
+              SwitchListTile(
+                secondary: const Icon(Icons.brightness_6),
+                title: const Text('Karanlık Mod'),
+                value: provider.themeMode == ThemeMode.dark,
+                onChanged: (bool value) {
+                  provider.setThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+                },
               ),
               const Divider(),
 
