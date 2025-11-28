@@ -98,6 +98,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "change_app_package_name",
+      "rootUri": "file:///home/onur/.pub-cache/hosted/pub.dev/change_app_package_name-1.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "characters",
       "rootUri": "file:///home/onur/.pub-cache/hosted/pub.dev/characters-1.4.0",
       "packageUri": "lib/",

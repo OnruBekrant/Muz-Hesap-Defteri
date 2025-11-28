@@ -1,4 +1,4 @@
-package com.example.muz_hesap_defteri
+package com.onurbekrant.muzdefteri
 
 import io.flutter.embedding.android.FlutterActivity
 
