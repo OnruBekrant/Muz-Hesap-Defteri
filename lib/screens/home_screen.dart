@@ -4,6 +4,7 @@ import '../providers/database_provider.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/transaction_item.dart';
 import 'add_transaction_screen.dart';
+import 'transaction_detail_screen.dart';
 import 'settings_screen.dart';
 import '../services/pdf_service.dart';
 import '../constants/colors.dart';
@@ -56,7 +57,17 @@ class HomeScreen extends StatelessWidget {
           ),
           body: Column(
             children: [
-              BalanceCard(transactions: provider.transactionList),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionDetailScreen(),
+                    ),
+                  );
+                },
+                child: BalanceCard(transactions: provider.transactionList),
+              ),
               Expanded(
                 child: provider.transactionList.isEmpty
                     ? Center(

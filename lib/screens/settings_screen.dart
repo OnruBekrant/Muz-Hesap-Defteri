@@ -21,13 +21,36 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               // Theme Settings (Placeholder)
-              SwitchListTile(
-                secondary: const Icon(Icons.brightness_6),
-                title: const Text('Karanlık Mod'),
-                value: provider.themeMode == ThemeMode.dark,
-                onChanged: (bool value) {
-                  provider.setThemeMode(value ? ThemeMode.dark : ThemeMode.light);
-                },
+              // Theme Settings
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: DropdownButtonFormField<ThemeMode>(
+                  decoration: const InputDecoration(
+                    labelText: 'Tema Ayarı',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.brightness_6),
+                  ),
+                  value: provider.themeMode,
+                  items: const [
+                    DropdownMenuItem(
+                      value: ThemeMode.system,
+                      child: Text('Sistem Teması'),
+                    ),
+                    DropdownMenuItem(
+                      value: ThemeMode.light,
+                      child: Text('Aydınlık Tema'),
+                    ),
+                    DropdownMenuItem(
+                      value: ThemeMode.dark,
+                      child: Text('Karanlık (AMOLED)'),
+                    ),
+                  ],
+                  onChanged: (ThemeMode? newValue) {
+                    if (newValue != null) {
+                      provider.setThemeMode(newValue);
+                    }
+                  },
+                ),
               ),
               const Divider(),
 

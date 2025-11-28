@@ -8,7 +8,7 @@ import '../models/transaction.dart';
 import '../constants/colors.dart';
 
 class PdfService {
-  Future<void> generateTransactionReport(Season season, List<Transaction> transactions) async {
+  Future<void> generateTransactionReport(Season season, List<Transaction> transactions, {String? customTitle}) async {
     final pdf = pw.Document();
     final font = await PdfGoogleFonts.robotoRegular();
     final boldFont = await PdfGoogleFonts.robotoBold();
@@ -40,7 +40,7 @@ class PdfService {
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text('Muz Hesap Defteri', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(customTitle ?? 'Muz Hesap Defteri', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
                   pw.Text(season.name, style: pw.TextStyle(fontSize: 18)),
                 ],
               ),
@@ -69,11 +69,11 @@ class PdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Text('Toplam Alacak: ${currencyFormat.format(totalAlacak)}'),
-                    pw.Text('Toplam Alınan: ${currencyFormat.format(totalAlindi)}'),
+                    if (totalAlacak > 0) pw.Text('Toplam Alacak: ${currencyFormat.format(totalAlacak)}'),
+                    if (totalAlindi > 0) pw.Text('Toplam Alınan: ${currencyFormat.format(totalAlindi)}'),
                     pw.SizedBox(height: 10),
                     pw.Text(
-                      'GÜNCEL BAKİYE: ${currencyFormat.format(balance)}',
+                      'BAKİYE: ${currencyFormat.format(balance)}',
                       style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
                     ),
                   ],

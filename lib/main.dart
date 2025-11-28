@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'providers/database_provider.dart';
 import 'screens/home_screen.dart';
 import 'constants/colors.dart';
@@ -58,6 +58,29 @@ class MuzHesapDefteriApp extends StatelessWidget {
             ],
             locale: const Locale('tr', 'TR'),
             themeMode: provider.themeMode,
+            darkTheme: ThemeData(
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: Colors.black, // Saf Siyah (AMOLED)
+              primaryColor: Colors.green, // Yaprak Yeşili (Marka rengi korunsun)
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.black, // Bar da siyah olsun
+                elevation: 0,
+                titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+                iconTheme: IconThemeData(color: Colors.white),
+              ),
+              cardColor: const Color(0xFF1E1E1E), // Kartlar hafif gri kalsın ki ayırt edilsin
+              colorScheme: const ColorScheme.dark(
+                primary: Colors.green,
+                secondary: Colors.yellow, // Muz Sarısı detaylar
+                surface: Colors.black,
+              ),
+              // Yazı tipleri okunabilir beyaz/gri olsun
+              textTheme: ThemeData.light().textTheme.apply(
+                fontFamily: 'Roboto',
+                bodyColor: Colors.white,
+                displayColor: Colors.white,
+              ),
+            ),
             theme: ThemeData(
               primaryColor: AppColors.muzSarisi,
               scaffoldBackgroundColor: AppColors.arkaPlan,
@@ -67,12 +90,8 @@ class MuzHesapDefteriApp extends StatelessWidget {
                 secondary: AppColors.yaprakYesili,
               ),
               useMaterial3: true,
-              textTheme: GoogleFonts.robotoTextTheme().copyWith(
-                displayLarge: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.metinRengi),
-                displayMedium: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.metinRengi),
-                bodyLarge: const TextStyle(fontSize: 20, color: AppColors.metinRengi), // Larger text for readability
-                bodyMedium: const TextStyle(fontSize: 18, color: AppColors.metinRengi),
-                labelLarge: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Button text
+              textTheme: ThemeData.light().textTheme.apply(
+                fontFamily: 'Roboto',
               ),
               appBarTheme: const AppBarTheme(
                 backgroundColor: AppColors.yaprakYesili,
