@@ -71,12 +71,24 @@ class HomeScreen extends StatelessWidget {
               Expanded(
                 child: provider.transactionList.isEmpty
                     ? Center(
-                        child: Text(
-                          'Henüz işlem yok.',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.grey[600],
-                          ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.note_add,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Henüz kayıt yok.\n+ butonuna basarak ekle.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     : ListView.builder(

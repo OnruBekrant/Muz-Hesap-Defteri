@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -72,7 +73,7 @@ class NotificationService {
             ?.requestExactAlarmsPermission();
             
          if (granted == false) {
-           print('Exact alarms permission not granted');
+           debugPrint('Exact alarms permission not granted');
            return;
          }
       }
@@ -97,7 +98,7 @@ class NotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     } catch (e) {
-      print('Error scheduling notification: $e');
+      debugPrint('Error scheduling notification: $e');
     }
   }
 
