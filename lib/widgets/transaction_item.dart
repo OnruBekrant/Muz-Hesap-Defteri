@@ -31,9 +31,48 @@ class TransactionItem extends StatelessWidget {
           transaction.description,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        subtitle: Text(
-          dateFormat.format(transaction.date),
-          style: TextStyle(color: Colors.grey[600]),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              dateFormat.format(transaction.date),
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            if (isAlacak && transaction.dueDate != null) ...[
+              const SizedBox(height: 4),
+              Builder(
+                builder: (context) {
+                  final now = DateTime.now();
+                  final today = DateTime(now.year, now.month, now.day);
+                  final due = DateTime(transaction.dueDate!.year, transaction.dueDate!.month, transaction.dueDate!.day);
+                  final days = due.difference(today).inDays;
+
+                  String text;
+                  Color textColor;
+
+                  if (days > 0) {
+                    text = 'Ödemeye $days gün var';
+                    textColor = Colors.green;
+                  } else if (days == 0) {
+                    text = 'Ödeme Günü BUGÜN!';
+                    textColor = Colors.orange;
+                  } else {
+                    text = 'Vadesi ${days.abs()} gün geçti';
+                    textColor = Colors.red;
+                  }
+
+                  return Text(
+                    text,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ],
         ),
         trailing: Text(
           currencyFormat.format(transaction.amount),

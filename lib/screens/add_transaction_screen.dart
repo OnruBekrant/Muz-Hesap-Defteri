@@ -59,38 +59,42 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       description = _selectedType == TransactionType.alacak ? 'Muz Teslimi' : 'Para Tahsilatı';
     }
 
-    Provider.of<DatabaseProvider>(context, listen: false).addTransaction(
-      type: _selectedType,
-      date: _selectedDate,
-      amount: amount,
-      description: description,
-      weight: weight,
-      unitCount: unitCount,
-      relatedTransactionId: _relatedTransactionId,
-      dueDate: _selectedType == TransactionType.alacak ? _dueDate : null,
-    );
+    try {
+      Provider.of<DatabaseProvider>(context, listen: false).addTransaction(
+        type: _selectedType,
+        date: _selectedDate,
+        amount: amount,
+        description: description,
+        weight: weight,
+        unitCount: unitCount,
+        relatedTransactionId: _relatedTransactionId,
+        dueDate: _selectedType == TransactionType.alacak ? _dueDate : null,
+      );
 
-    // Schedule Notification if enabled and due date is set
-    if (_selectedType == TransactionType.alacak && _dueDate != null) {
-      final provider = Provider.of<DatabaseProvider>(context, listen: false);
-      if (provider.notificationsEnabled) {
-        try {
-          int notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-          
-          await NotificationService().scheduleNotification(
-            notificationId,
-            'Ödeme Günü Geldi!',
-            '${DateFormat('dd MMMM yyyy', 'tr_TR').format(_selectedDate)} tarihinde verdiğiniz $amount TL\'lik muzun ödeme vadesi bugün.',
-            _dueDate!,
-          );
-        } catch (e) {
-          debugPrint('Notification scheduling failed: $e');
-          // Continue execution even if notification fails
+      // Schedule Notification if enabled and due date is set
+      if (_selectedType == TransactionType.alacak && _dueDate != null) {
+        final provider = Provider.of<DatabaseProvider>(context, listen: false);
+        if (provider.notificationsEnabled) {
+          try {
+            int notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+            
+            await NotificationService().scheduleNotification(
+              notificationId,
+              'Ödeme Günü Geldi!',
+              '${DateFormat('dd MMMM yyyy', 'tr_TR').format(_selectedDate)} tarihinde verdiğiniz $amount TL\'lik muzun ödeme vadesi bugün.',
+              _dueDate!,
+            );
+          } catch (e) {
+            debugPrint('Notification scheduling failed: $e');
+            // Continue execution even if notification fails
+          }
         }
       }
+    } catch (e) {
+      debugPrint('Error saving transaction: $e');
+    } finally {
+      if (mounted) Navigator.pop(context);
     }
-
-    Navigator.pop(context);
   }
 
   Future<void> _pickDate() async {

@@ -64,25 +64,41 @@ class NotificationService {
     // If date is in the past, don't schedule
     if (scheduledDate.isBefore(DateTime.now())) return;
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'payment_reminders',
-          'Ödeme Hatırlatıcıları',
-          channelDescription: 'Muz ödeme vadeleri için bildirimler',
-          importance: Importance.max,
-          priority: Priority.high,
+    try {
+      if (Platform.isAndroid) {
+         final bool? granted = await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.requestExactAlarmsPermission();
+            
+         if (granted == false) {
+           print('Exact alarms permission not granted');
+           return;
+         }
+      }
+
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        tz.TZDateTime.from(scheduledDate, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'payment_reminders',
+            'Ödeme Hatırlatıcıları',
+            channelDescription: 'Muz ödeme vadeleri için bildirimler',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
         ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    } catch (e) {
+      print('Error scheduling notification: $e');
+    }
   }
 
   Future<void> cancelNotification(int id) async {
