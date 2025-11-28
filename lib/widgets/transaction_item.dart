@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/transaction.dart';
 import '../constants/colors.dart';
+import '../providers/database_provider.dart';
 
 class TransactionItem extends StatelessWidget {
   final Transaction transaction;
@@ -17,69 +19,104 @@ class TransactionItem extends StatelessWidget {
     final color = isAlacak ? AppColors.koyuYesil : Colors.red;
     final icon = isAlacak ? Icons.arrow_upward : Icons.arrow_downward;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.1),
-          child: Icon(icon, color: color),
-        ),
-        title: Text(
-          transaction.description,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              dateFormat.format(transaction.date),
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            if (isAlacak && transaction.dueDate != null) ...[
-              const SizedBox(height: 4),
-              Builder(
-                builder: (context) {
-                  final now = DateTime.now();
-                  final today = DateTime(now.year, now.month, now.day);
-                  final due = DateTime(transaction.dueDate!.year, transaction.dueDate!.month, transaction.dueDate!.day);
-                  final days = due.difference(today).inDays;
-
-                  String text;
-                  Color textColor;
-
-                  if (days > 0) {
-                    text = 'Ödemeye $days gün var';
-                    textColor = Colors.green;
-                  } else if (days == 0) {
-                    text = 'Ödeme Günü BUGÜN!';
-                    textColor = Colors.orange;
-                  } else {
-                    text = 'Vadesi ${days.abs()} gün geçti';
-                    textColor = Colors.red;
-                  }
-
-                  return Text(
-                    text,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  );
-                },
+    return Dismissible(
+      key: Key(transaction.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red,
+        child: const Icon(Icons.delete, color: Colors.white, size: 30),
+      ),
+      confirmDismiss: (direction) async {
+        return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("İşlemi Sil"),
+              content: const Text("Bu işlemi silmek istediğinize emin misiniz?"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("İptal"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: const Text("SİL"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      onDismissed: (direction) {
+        Provider.of<DatabaseProvider>(context, listen: false).deleteTransaction(transaction.id);
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          leading: CircleAvatar(
+            backgroundColor: color.withOpacity(0.1),
+            child: Icon(icon, color: color),
+          ),
+          title: Text(
+            transaction.description,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dateFormat.format(transaction.date),
+                style: TextStyle(color: Colors.grey[600]),
               ),
+              if (isAlacak && transaction.dueDate != null) ...[
+                const SizedBox(height: 4),
+                Builder(
+                  builder: (context) {
+                    final now = DateTime.now();
+                    final today = DateTime(now.year, now.month, now.day);
+                    final due = DateTime(transaction.dueDate!.year, transaction.dueDate!.month, transaction.dueDate!.day);
+                    final days = due.difference(today).inDays;
+
+                    String text;
+                    Color textColor;
+
+                    if (days > 0) {
+                      text = 'Ödemeye $days gün var';
+                      textColor = Colors.green;
+                    } else if (days == 0) {
+                      text = 'Ödeme Günü BUGÜN!';
+                      textColor = Colors.orange;
+                    } else {
+                      text = 'Vadesi ${days.abs()} gün geçti';
+                      textColor = Colors.red;
+                    }
+
+                    return Text(
+                      text,
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ],
-          ],
-        ),
-        trailing: Text(
-          currencyFormat.format(transaction.amount),
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+          ),
+          trailing: Text(
+            currencyFormat.format(transaction.amount),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
         ),
       ),

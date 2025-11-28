@@ -133,6 +133,18 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteTransaction(String transactionId) async {
+    if (_activeSeason == null) return;
+
+    final index = _transactionList.indexWhere((t) => t.id == transactionId);
+    if (index != -1) {
+      final transaction = _transactionList[index];
+      await transaction.delete(); // Delete from Hive
+      _transactionList.removeAt(index); // Remove from local list
+      notifyListeners();
+    }
+  }
+
   Future<void> closeSeason() async {
     if (_activeSeason == null) return;
 
