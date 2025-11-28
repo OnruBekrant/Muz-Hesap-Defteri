@@ -313,8 +313,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           decoration: const InputDecoration(
             labelText: 'Toplam Tutar',
             border: OutlineInputBorder(),
-            suffixText: '₺',
-            prefixIcon: Icon(Icons.attach_money),
+            suffixText: 'TL',
           ),
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           validator: (value) {
