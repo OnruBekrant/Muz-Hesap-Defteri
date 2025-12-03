@@ -19,9 +19,11 @@ class TransactionItem extends StatelessWidget {
     final color = isAlacak ? AppColors.koyuYesil : Colors.red;
     final icon = isAlacak ? Icons.arrow_upward : Icons.arrow_downward;
 
+    final isActive = Provider.of<DatabaseProvider>(context, listen: false).currentSeason?.isActive ?? false;
+
     return Dismissible(
       key: Key(transaction.id),
-      direction: DismissDirection.endToStart,
+      direction: isActive ? DismissDirection.endToStart : DismissDirection.none,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -29,6 +31,7 @@ class TransactionItem extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white, size: 30),
       ),
       confirmDismiss: (direction) async {
+        if (!isActive) return false;
         return await showDialog(
           context: context,
           builder: (BuildContext context) {
